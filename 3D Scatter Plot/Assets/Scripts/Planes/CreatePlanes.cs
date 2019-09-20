@@ -3,16 +3,17 @@ using UnityEngine;
 
 public class CreatePlanes : MonoBehaviour
 {
+    // for a square plane, only one dimension will be sufficient
+    public int size;
 
+    // material for the plane
     public Material planeMat;
 
     void Start()
     {
-        PlaneXY.CreatePlane(100, 100, planeMat);
-        PlaneYZ.CreatePlane(100, 100, planeMat);
-        PlaneXZ.CreatePlane(100, 100, planeMat);
-
-
+        PlaneXY.CreatePlane(size, size, planeMat);
+        PlaneYZ.CreatePlane(size, size, planeMat);
+        PlaneXZ.CreatePlane(size, size, planeMat);
     }
 
 }

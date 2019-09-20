@@ -1,11 +1,13 @@
-﻿using System;
-public class DataPoint
+﻿using UnityEngine;
+
+[System.Serializable]
+public class DataPoint : MonoBehaviour
 {
-    float X { get; set; }
-    float Y { get; set; }
-    float Z { get; set; }
-    float Size { get; set; }
-    int Color { get; set; }
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+    public float Size { get; set; }
+    public int Color { get; set; }
     
     public DataPoint(float x, float y, float z, float size, int color)
     {

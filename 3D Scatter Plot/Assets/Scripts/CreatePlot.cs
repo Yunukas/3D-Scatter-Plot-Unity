@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using System.IO;
 using System.Threading;
 using UnityEngine;
@@ -8,11 +9,13 @@ public class CreatePlot : MonoBehaviour
 {
     // List for holding data from CSV reader
     private List<Dictionary<string, object>> pointList;
-    private DataPoint[] dataPoints;
+    public DataPoint dataPoint;
     public string inputCSV;
 
     // The prefab for the data points to be instantiated
     public GameObject PointPrefab;
+    // this will be the parent to all point objects
+    public GameObject PointParent;
 
     // Indices for columns to be assigned
     public int columnX = 0;
@@ -22,18 +25,31 @@ public class CreatePlot : MonoBehaviour
     public int columnColor = 4;
 
     // Full column names
-    public string xName;
-    public string yName;
-    public string zName;
-    public string sizeName;
-    public string colorName;
+    private string xName;
+    private string yName;
+    private string zName;
+    private string sizeName;
+    private string colorName;
+
+    // scale for the plot
+    private float plotScale = 50;
+
+    // min and max values for coordinates
+    private float xMin;
+    private float yMin;
+    private float zMin;
+
+    private float xMax;
+    private float yMax;
+    private float zMax;
+
     // Start is called before the first frame update
     void Start()
     {
         // Set pointlist to results of function Reader with argument inputfile
         pointList = CSVReader.Read(inputCSV);
         // initialize the data points array with the correct size
-        dataPoints = new DataPoint[pointList.Count - 1];
+        //dataPoints = new DataPoint[pointList.Count - 1];
         //Debug.Log(pointList);
         // Declare list of strings, fill with keys (column names)
         List<string> columnList = new List<string>(pointList[1].Keys);
@@ -45,25 +61,62 @@ public class CreatePlot : MonoBehaviour
         sizeName = columnList[columnSize];
         colorName = columnList[columnColor];
 
-        for (var i = 0; i < pointList.Count; i++)
+        // calculate min and max values
+        xMin = FindMinValue(xName);
+        yMin = FindMinValue(yName);
+        zMin = FindMinValue(zName);
+
+        xMax = FindMaxValue(xName);
+        yMax = FindMaxValue(yName);
+        zMax = FindMaxValue(zName);
+
+        // find the max and min sizes to scale the sphere
+        float maxSize = FindMaxValue(sizeName);
+        float minSize = FindMinValue(sizeName);
+        float sizeScale = maxSize / minSize;
+
+        PointPrefab = Resources.Load("PointSphere") as GameObject;
+
+        for (var i = 0; i < pointList.Count - 1; i++)
         {
             // Get value in poinList at ith "row", in "column" Name
-            float x = System.Convert.ToSingle(pointList[i][xName]);
-            float y = System.Convert.ToSingle(pointList[i][yName]);
-            float z = System.Convert.ToSingle(pointList[i][zName]);
-            float size = System.Convert.ToSingle(pointList[i][sizeName]);
-            int color = System.Convert.ToInt32(pointList[i][colorName]);
+            float x = Convert.ToSingle(pointList[i][xName]);
+            float y = Convert.ToSingle(pointList[i][yName]);
+            float z = Convert.ToSingle(pointList[i][zName]);
+            float size = Convert.ToSingle(pointList[i][sizeName]);
+            int color = Convert.ToInt32(pointList[i][colorName]);
 
-            // add the point to the array
-            dataPoints[i] = new DataPoint(x, y, z, size, color);
+            // normalize the point
+            float scaledX = (x - xMin) / (xMax - xMin);
+            float scaledY = (y - yMin) / (yMax - yMin);
+            float scaledZ = (z - zMin) / (zMax - zMin);
 
-            // scale down the sizes of data point spheres by 15
-            PointPrefab.transform.localScale = new Vector3(size / 15, size / 15, size / 15);
+            //Debug.Log("x : " + x + " y: " + y + " z: " + z + " scaledX : " + scaledX + " scaledY: " + scaledY + " scaledZ: " + scaledZ);
+
+            // set the scaled position of the point
+            Vector3 position = new Vector3(scaledX, scaledY, scaledZ) * plotScale;
             
-            //instantiate the prefab with coordinates defined above
-            GameObject obj =  Instantiate(PointPrefab, new Vector3(x, y, z), Quaternion.identity);
-            obj.GetComponent<MeshRenderer>().material.SetColor("_Color", getColor(color));
+            //instantiate the point prefab with coordinates defined above
+            GameObject obj =  Instantiate(PointPrefab, position, Quaternion.identity) as GameObject;
+            // attach the object to the parent 
+            obj.transform.parent = PointParent.transform;
 
+            // 
+            dataPoint = obj.GetComponent<DataPoint>();
+            dataPoint.X = x;
+            dataPoint.Y = y;
+            dataPoint.Z = z;
+            dataPoint.Size = size;
+            dataPoint.Color = color;
+            //new DataPoint(x, y, z, size, color);
+
+            // set the color
+            obj.GetComponent<Renderer>().material.SetColor("_Color", getColor(color));
+            // set the scale
+            obj.transform.localScale = new Vector3(size, size, size) / maxSize;
+            // name the object
+            obj.transform.name = dataPoint.toString();
+            
         }
     }
 
@@ -82,10 +135,37 @@ public class CreatePlot : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    //Method for finding max value, assumes PointList is generated
+    private float FindMaxValue(string columnName)
     {
+        //set initial value to first value
+        float maxValue = Convert.ToSingle(pointList[0][columnName]);
 
+        //Loop through Dictionary, overwrite existing maxValue if new value is larger
+        for (var i = 0; i < pointList.Count; i++)
+        {
+            if (maxValue < Convert.ToSingle(pointList[i][columnName]))
+                maxValue = Convert.ToSingle(pointList[i][columnName]);
+        }
+
+        //Spit out the max value
+        return maxValue;
+    }
+
+    //Method for finding minimum value, assumes PointList is generated
+    private float FindMinValue(string columnName)
+    {
+        //set initial value to first value
+        float minValue = Convert.ToSingle(pointList[0][columnName]);
+
+        //Loop through Dictionary, overwrite existing minValue if new value is smaller
+        for (var i = 0; i < pointList.Count; i++)
+        {
+            if (Convert.ToSingle(pointList[i][columnName]) < minValue)
+                minValue = Convert.ToSingle(pointList[i][columnName]);
+        }
+
+        return minValue;
     }
 
     //IEnumerator LoadConfig()
