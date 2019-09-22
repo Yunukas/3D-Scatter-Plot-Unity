@@ -9,13 +9,15 @@ public class CreatePlot : MonoBehaviour
 {
     // List for holding data from CSV reader
     private List<Dictionary<string, object>> pointList;
-    public DataPoint dataPoint;
-    public string inputCSV;
 
+    public static GameObject[] GameObjects;
     // The prefab for the data points to be instantiated
-    public GameObject PointPrefab;
+    private GameObject PointPrefab;
+
+
     // this will be the parent to all point objects
     public GameObject PointParent;
+    public string inputCSV;
 
     // Indices for columns to be assigned
     public int columnX = 0;
@@ -48,11 +50,12 @@ public class CreatePlot : MonoBehaviour
     {
         // Set pointlist to results of function Reader with argument inputfile
         pointList = CSVReader.Read(inputCSV);
-        // initialize the data points array with the correct size
-        //dataPoints = new DataPoint[pointList.Count - 1];
-        //Debug.Log(pointList);
+
         // Declare list of strings, fill with keys (column names)
         List<string> columnList = new List<string>(pointList[1].Keys);
+
+        // initialize the array
+        GameObjects = new GameObject[pointList.Count];
 
         // Assign column name from columnList to Name variables
         xName = columnList[columnX];
@@ -72,12 +75,12 @@ public class CreatePlot : MonoBehaviour
 
         // find the max and min sizes to scale the sphere
         float maxSize = FindMaxValue(sizeName);
-        float minSize = FindMinValue(sizeName);
-        float sizeScale = maxSize / minSize;
+        //float minSize = FindMinValue(sizeName);
 
+        // load the resource for points
         PointPrefab = Resources.Load("PointSphere") as GameObject;
 
-        for (var i = 0; i < pointList.Count - 1; i++)
+        for (var i = 0; i < pointList.Count; i++)
         {
             // Get value in poinList at ith "row", in "column" Name
             float x = Convert.ToSingle(pointList[i][xName]);
@@ -91,35 +94,34 @@ public class CreatePlot : MonoBehaviour
             float scaledY = (y - yMin) / (yMax - yMin);
             float scaledZ = (z - zMin) / (zMax - zMin);
 
-            //Debug.Log("x : " + x + " y: " + y + " z: " + z + " scaledX : " + scaledX + " scaledY: " + scaledY + " scaledZ: " + scaledZ);
-
             // set the scaled position of the point
             Vector3 position = new Vector3(scaledX, scaledY, scaledZ) * plotScale;
-            
+
             //instantiate the point prefab with coordinates defined above
-            GameObject obj =  Instantiate(PointPrefab, position, Quaternion.identity) as GameObject;
+            GameObject obj = Instantiate(PointPrefab, position, Quaternion.identity) as GameObject;
+            // add the object to the array
+            GameObjects[i] = obj;
             // attach the object to the parent 
             obj.transform.parent = PointParent.transform;
 
-            // 
-            dataPoint = obj.GetComponent<DataPoint>();
+            // attach DataPoint info to the gameobject
+            DataPoint dataPoint = obj.GetComponent<DataPoint>();
+            dataPoint.Row = i + 1;
             dataPoint.X = x;
             dataPoint.Y = y;
             dataPoint.Z = z;
             dataPoint.Size = size;
-            dataPoint.Color = color;
-            //new DataPoint(x, y, z, size, color);
-
+            dataPoint.Color = getColorName(color);
+            
             // set the color
             obj.GetComponent<Renderer>().material.SetColor("_Color", getColor(color));
             // set the scale
             obj.transform.localScale = new Vector3(size, size, size) / maxSize;
             // name the object
-            obj.transform.name = dataPoint.toString();
-            
+            obj.transform.name = dataPoint.ToString();
         }
     }
-
+    // return the Color for the given value
     private Color getColor(int colorValue)
     {
         switch (colorValue)
@@ -132,6 +134,21 @@ public class CreatePlot : MonoBehaviour
                 return Color.green;
             default:
                 return Color.red;
+        }
+    }
+    // return color in string
+    private string getColorName(int colorValue)
+    {
+        switch (colorValue)
+        {
+            case 0:
+                return "Red";
+            case 1:
+                return "Blue";
+            case 2:
+                return "Green";
+            default:
+                return "Red";
         }
     }
 
@@ -147,8 +164,6 @@ public class CreatePlot : MonoBehaviour
             if (maxValue < Convert.ToSingle(pointList[i][columnName]))
                 maxValue = Convert.ToSingle(pointList[i][columnName]);
         }
-
-        //Spit out the max value
         return maxValue;
     }
 
@@ -164,7 +179,6 @@ public class CreatePlot : MonoBehaviour
             if (Convert.ToSingle(pointList[i][columnName]) < minValue)
                 minValue = Convert.ToSingle(pointList[i][columnName]);
         }
-
         return minValue;
     }
 
@@ -186,4 +200,7 @@ public class CreatePlot : MonoBehaviour
     //    //});
     //    Debug.Log(pointList);
     //}
+    
 }
+
+
