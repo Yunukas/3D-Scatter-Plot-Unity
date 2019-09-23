@@ -2,40 +2,50 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
+using System.Threading;
 public class Loader : MonoBehaviour
 {
-    public string nextScene;
+    // the progress spinner component
+	public RectTransform rectComponent;
+    // next scene
+	public string nextScene;
     // List for holding data from CSV reader
     private List<Dictionary<string, object>> pointList;
     // the data to be loaded
     TextAsset data;
-    string text;
+   
+    // name of csv file
     public string inputCSV;
     // Start is called before the first frame update
-    void Start()
+    IEnumerator Start()
     {
+        // get the raw data
         data = Resources.Load(inputCSV) as TextAsset;
-        text = data.text;
-        StartCoroutine("LoadCSV", nextScene);
+        // start the coroutine to read csv data
+        yield return StartCoroutine("LoadCSV", data.text);
+        // load the next scene
+        SceneManager.LoadScene(nextScene);
     }
-
-    // Update is called once per frame
-    void Update()
+    // coroutine to show spinner animation and read the csv
+    IEnumerator LoadCSV(string text)
     {
-        
-    }
+        // play the animation
+        Animator anim = rectComponent.GetComponent<Animator>();
+        anim.Play("SpinnerAnim", 0);
 
-    IEnumerator LoadCSV(string scene)
-    {
-        yield return new WaitForThreadedTask(() => {
+        // get the raw data in a new thread
+        yield return new WaitForThreadedTask(() =>
+        {
             pointList = CSVReader.Read(text);
         });
+
+        // thread is done, assign the data to the DataStore
         DataStore.setPointList(pointList);
 
-        // add a slight delay
+        // add a slight delay before transitioning
         yield return new WaitForSeconds(1.5f);
-        // load the next scene
-        SceneManager.LoadScene(scene);
+
+        //stop the animation
+        anim.StopPlayback();
     }
 }

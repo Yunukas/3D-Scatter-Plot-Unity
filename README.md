@@ -30,4 +30,4 @@ Loading scene is added. Input file is read by a coroutine and added to a static 
 After file is parsed, a transition happens to the main scene.
 Plane labels are added, (XY, YZ, XZ planes)
 - Loader.cs parses the input file with a coroutine. This coroutine creates a thread to read the input file. 
-- Spinner.cs spins the loading circle.
+- A spinning animation is played while the data is being parsed.

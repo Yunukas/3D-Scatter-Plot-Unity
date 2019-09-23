@@ -10,25 +10,22 @@ public class PanelControl : MonoBehaviour
     private static int CurrentRow;
     // last panel position, will be necessary when panel buttons are clicked
     private static Vector3 lastPosition;
-    // the prefab for our panel
-    //public GameObject panelPrefab;
     // this will represent the status of the panel
     public static bool active;
 
     void Start()
     {
-        // instantiate the panel at the origin, and hide it
-        //panel = Instantiate(panelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
+        // get the panel object and hide it
         panel = transform.gameObject;
         panel.SetActive(false);
         active = false;
     }
-
+    // this method will hide the panel
     public static void RemovePanel()
     { 
         panel.SetActive(false);
     }
-
+    // update the information on the panel
     public static void UpdatePanel(Vector3 position, GameObject go)
     {
         // update the row info
@@ -46,9 +43,7 @@ public class PanelControl : MonoBehaviour
         string rowInfo = "Row: " + dp.Row.ToString();
 
 		// rotate the panel properly
-		//if (panel.GetComponent<RectTransform>().rotation != Camera.main.transform.rotation)
-			panel.GetComponent<RectTransform>().rotation = Camera.main.transform.rotation;
-
+		panel.GetComponent<RectTransform>().rotation = Camera.main.transform.rotation;
         // set the position of panel
         panel.GetComponent<RectTransform>().localPosition = position;
         // apply the information on the panel
