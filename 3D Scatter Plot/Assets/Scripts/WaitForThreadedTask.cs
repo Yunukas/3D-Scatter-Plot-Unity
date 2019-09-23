@@ -18,13 +18,10 @@ class WaitForThreadedTask : UnityEngine.CustomYieldInstruction
     /// </summary>
     /// <param name="task">Task to execute in the thread</param>
     /// <param name="priority">Priority of the thread to execute the task in</param>
-    public WaitForThreadedTask(
-        Action task,
-        ThreadPriority priority = ThreadPriority.Normal
-    )
+    public WaitForThreadedTask(Action task, ThreadPriority priority = ThreadPriority.Normal)
     {
         isRunning = true;
-        new Thread(() => { task(); isRunning = false; }).Start(priority);
+        new Thread(() => { task(); isRunning = false; }).Start();
     }
 
     /// <summary>

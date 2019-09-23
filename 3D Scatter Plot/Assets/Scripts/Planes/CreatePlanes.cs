@@ -15,5 +15,4 @@ public class CreatePlanes : MonoBehaviour
         PlaneYZ.CreatePlane(size, size, planeMat);
         PlaneXZ.CreatePlane(size, size, planeMat);
     }
-
 }

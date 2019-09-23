@@ -68,7 +68,7 @@ public class PanelControl : MonoBehaviour
         {
             // if we are at the first row, go to the end of the array
             if (CurrentRow == 0)
-                CurrentRow = CreatePlot.GameObjects.Length - 1;
+                CurrentRow = ScatterPlot.GameObjects.Length - 1;
             else
                 --CurrentRow;
         }
@@ -76,14 +76,14 @@ public class PanelControl : MonoBehaviour
         else
         {
             // if we are at the last row, go to the beginning of the array
-            if (CurrentRow == CreatePlot.GameObjects.Length - 1)
+            if (CurrentRow == ScatterPlot.GameObjects.Length - 1)
                 CurrentRow = 0;
             else
                 ++CurrentRow;
         }
 
         // get the next game object in the array
-        GameObject go = CreatePlot.GameObjects[CurrentRow];
+        GameObject go = ScatterPlot.GameObjects[CurrentRow];
         // and update the panel at the last position
         UpdatePanel(lastPosition, go);
         // animate the point
