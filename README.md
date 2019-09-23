@@ -15,8 +15,8 @@ Added mouse click property to the points which currently prints the point inform
 
 
 #### Update : 
-Panel is added. When data points are clicked, the panel will be shown in the middle of the screen. When clicked away from the panel, it will close. Left and Right arrow buttons on the panel will help navigate between data points.
-Data points will animate when selected.
+Panel is added. When data points are clicked, the panel is shown in the middle of the screen. When clicked away from the panel, it closes. Left and Right arrow buttons on the panel helps navigate between data points.
+Data points animate when selected.
 - PanelControl.cs controls the panel operations.
 - ClickAwayDetector.cs detects the clicks outside of panel.
 - PointAnimator.cs animates the active game object(data point)
