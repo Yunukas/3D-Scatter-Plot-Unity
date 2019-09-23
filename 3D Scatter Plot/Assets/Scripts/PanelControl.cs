@@ -45,9 +45,9 @@ public class PanelControl : MonoBehaviour
                                 "\nColor: " + dp.Color;
         string rowInfo = "Row: " + dp.Row.ToString();
 
-        // rotate the panel properly
-        if (panel.GetComponent<RectTransform>().rotation.eulerAngles != Camera.main.transform.rotation.eulerAngles)
-            panel.GetComponent<RectTransform>().Rotate(Camera.main.transform.rotation.eulerAngles);
+		// rotate the panel properly
+		//if (panel.GetComponent<RectTransform>().rotation != Camera.main.transform.rotation)
+			panel.GetComponent<RectTransform>().rotation = Camera.main.transform.rotation;
 
         // set the position of panel
         panel.GetComponent<RectTransform>().localPosition = position;
@@ -60,6 +60,7 @@ public class PanelControl : MonoBehaviour
         active = true;
     }
     // when left/right buttons on the panel are clicked
+    // panel will be updated and the active point will be animated
     public void ButtonClick(string direction)
     {
         // if left arrow button is clicked
@@ -85,6 +86,8 @@ public class PanelControl : MonoBehaviour
         GameObject go = CreatePlot.GameObjects[CurrentRow];
         // and update the panel at the last position
         UpdatePanel(lastPosition, go);
+        // animate the point
+		PointAnimator.Animate(go);
     }
 
 }

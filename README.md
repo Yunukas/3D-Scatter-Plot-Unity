@@ -19,3 +19,6 @@ Data points will animate when selected.
 - PanelControl.cs controls the panel operations.
 - ClickAwayDetector.cs detects the clicks outside of panel.
 - PointAnimator.cs animates the active game object(data point)
+
+** Update : Camera controller is added. Viewer can move around the scene with keyboard and mouse inputs.
+- RTS_Camera.cs handles the camera movements. If panel is active when camera is moved, panel will close.

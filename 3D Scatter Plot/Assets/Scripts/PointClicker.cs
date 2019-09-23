@@ -32,7 +32,7 @@ public class PointClicker : MonoBehaviour
             // animate it
             PointAnimator.Animate(currentObject);
             // get the center position in current view
-            Vector3 screenCenterPos = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, 20f));
+            Vector3 screenCenterPos = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, 10f));
             // update and show the panel
             PanelControl.UpdatePanel(screenCenterPos, currentObject);
       
